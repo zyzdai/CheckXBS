@@ -8,6 +8,7 @@ RUN cd /app \
     && python3 -m pip install --upgrade pip\
     && pip3 install --no-cache-dir -r requirements.txt\
     && rm -rf /tmp/* && rm -rf /root/.cache/* \
+    && apt-get --allow-releaseinfo-change update\
     && chmod +x ./xbsrebuild
 
 # 设置系统时区
