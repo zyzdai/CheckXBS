@@ -1,6 +1,5 @@
 
 flask
 asyncio
-concurrent
 requests
 
