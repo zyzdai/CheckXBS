@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XBS检测工具</title>
+</head>
+<body>
+<h1>XBS检测工具</h1>
+<form id="uploadForm" action="/?nocache=<%= new Date().getTime() %>" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xbs" required>
+    <input id="submitBtn" type="submit" value="上传并检测">
+</form>
+<br>
+<form action="/download?nocache=<%= new Date().getTime() %>" method="get" id="downloadResultsBtn" style="display: none;">
+    <button type="submit">下载结果</button>
+</form>
+<br>
+<h3 id="results">未开始</h3>
+<ul id="xbs_run_log"></ul>
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#uploadForm').submit(function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            updateProgress();
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
+        function updateProgress() {
+            console.log("开始更新进度")
+            $.get('/refresh?nocache=' + new Date().getTime(), function (data) {
+                $('#xbs_run_log').empty();
+                $.each(data.xbs_check_result,function (xbs,status){
+                    $('#xbs_run_log').prepend('<li>' + xbs + ' - ' + status + '</li>');
+                });
+
+                var message = data.message;
+                var status = data.status;
+                $('#results').html(status);
+                if (status == 'running') {
+                    setTimeout(updateProgress, 1000);
+                } else {
+                    $('#downloadResultsBtn').show();
+                }
+            });
+        }
+
+        // 这里不需要立即调用 updateProgress() 函数了，因为我们会在文件上传成功后调用它。
+    });
+</script>
+</body>
+</html>
